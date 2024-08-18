@@ -694,7 +694,6 @@ def stom(seconds):
 @app.post("/login")
 def login(authinfo: AuthInfo):
     res = authenticate_user(authinfo.email, authinfo.password)
-    res = convert_result_to_json(res)
     return res
 
 
