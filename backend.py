@@ -819,6 +819,6 @@ def getmyassignment_deadline(id: str):
 
 # サービスIDに紐づいたイベントを全取得
 @app.get("/geteventdate/{id}")
-def get_events_by_service_id(id: str):
-    res = get_assignments_with_content_details_deadline(id)
+def geteventdate(id: str):
+    res = get_events_by_service_id(id)
     return res
