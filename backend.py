@@ -672,6 +672,51 @@ def get_assignments_with_content_details_deadline(group_id):
     return detailed_assignments
 
 
+# イベント情報の取得
+def get_events_by_service_id(service_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)  # 結果を辞書形式で取得
+
+    # サービスIDに基づいて全イベント情報を取得するクエリ
+    query = """
+    SELECT 
+        event_id,
+        service_id,
+        title,
+        event_datetime,
+        location,
+        description,
+        notes,
+        created_at,
+        last_updated
+    FROM 
+        EventCalendar 
+    WHERE 
+        service_id = %s
+    """
+
+    try:
+        cursor.execute(query, (service_id,))
+        results = cursor.fetchall()
+
+        if not results:
+            print("No events found for the provided service ID.")
+            return None
+            # 各行に対してループ処理
+        for row in results:
+            for key, value in row.items():
+                if isinstance(value, datetime):  # 日付時刻の場合のみ変換
+                    row[key] = convert_utc_to_jst(value)
+        return results
+
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # 結果をJSON形式に変換する関数 ############################################
 def convert_result_to_json(result):
     if result:
@@ -768,5 +813,12 @@ def getmyassignment(id: str):
 # 自班に紐づいた宿題を全取得
 @app.get("/getmyassignment-deadline/{id}")
 def getmyassignment_deadline(id: str):
+    res = get_assignments_with_content_details_deadline(id)
+    return res
+
+
+# サービスIDに紐づいたイベントを全取得
+@app.get("/geteventdate/{id}")
+def get_events_by_service_id(id: str):
     res = get_assignments_with_content_details_deadline(id)
     return res
